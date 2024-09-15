@@ -17,7 +17,7 @@ class MicPage extends StatefulWidget {
 }
 
 class _MicPageState extends State<MicPage> {
-  AudioRecorder myRecording = AudioRecorder();
+  Record myRecording = Record();
   Timer? timer;
 
   double volume = 0.0;
@@ -45,7 +45,7 @@ class _MicPageState extends State<MicPage> {
   Future<bool> startRecording() async {
     if (await myRecording.hasPermission()) {
       if (!await myRecording.isRecording()) {
-        await myRecording.start(const RecordConfig(), path: '/popcorn.m4a');
+        await myRecording.start();
       }
       startTimer();
       return true;
