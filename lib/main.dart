@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:record/record.dart';
 
@@ -19,9 +18,10 @@ class MicPage extends StatefulWidget {
 class _MicPageState extends State<MicPage> {
   Record myRecording = Record();
   Timer? timer;
+  Stopwatch stopwatch = Stopwatch();
 
   double volume = 0.0;
-  double minVolume = -45.0;
+  double minVolume = -200.0;
 
   startTimer() async {
     timer ??= Timer.periodic(
@@ -30,16 +30,16 @@ class _MicPageState extends State<MicPage> {
 
   updateVolume() async {
     Amplitude ampl = await myRecording.getAmplitude();
-    if (ampl.current > minVolume) {
-      setState(() {
-        volume = (ampl.current - minVolume) / minVolume;
-      });
-      //print("Volume: $volume");
+    setState(() {
+      volume = ampl.current;
+    });
+    if (volume >= -10.0) {
+      if (stopwatch.isRunning) {
+        stopwatch.stop();
+        stopwatch.reset();
+      }
+      stopwatch.start();
     }
-  }
-
-  int volume0to(int maxVolumeToDisplay) {
-    return (volume * maxVolumeToDisplay).toInt().round().abs();
   }
 
   Future<bool> startRecording() async {
@@ -61,9 +61,12 @@ class _MicPageState extends State<MicPage> {
         builder: (context, AsyncSnapshot<bool> snapshot) {
           return Scaffold(
               body: Center(
-            child:
-                Text(snapshot.hasData ? volume0to(100).toString() : 'No data'),
-          ));
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                Text(snapshot.hasData ? volume.toString() : 'No data'),
+                Text(stopwatch.elapsed.toString()),
+              ])));
         });
   }
 }
